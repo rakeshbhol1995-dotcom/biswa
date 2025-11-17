@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Receipt</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;margin:20px;color:#1c2b2d}
+    .header{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+    .header .logo{height:32px;width:auto;display:none}
+    .header .brand{font-weight:800;letter-spacing:0.6px;color:#0b3c35}
+    h1{margin:0 0 10px 0}
+    .meta{margin-bottom:10px;color:#4b5c5f}
+    table{width:100%;border-collapse:collapse;margin-top:10px}
+    th,td{border-bottom:1px solid #e8ecef;padding:6px;text-align:left}
+    .total{display:flex;justify-content:flex-end;gap:12px;margin-top:12px;font-weight:700}
+    .actions{margin-top:16px;display:flex;gap:8px}
+    .btn{border:none;padding:8px 12px;border-radius:6px;background:#1fb996;color:#fff;cursor:pointer}
+    .btn.secondary{background:#e6eef0;color:#244749}
+    @media print{.actions{display:none}}
+  </style>
+</head>
+<body>
+  <div class="header">
+    <img id="logo" class="logo" alt="WHITEX LAUNDRY" />
+    <div class="brand">WHITEX LAUNDRY</div>
+  </div>
+  <h1 id="title">Receipt</h1>
+  <div class="meta" id="meta"></div>
+  <table id="items">
+    <tr><th>Item</th><th>Qty</th><th>Price</th></tr>
+  </table>
+  <div class="total" id="total"></div>
+  <div class="actions">
+    <button class="btn" id="btnPrint">Print</button>
+    <button class="btn secondary" id="btnHome">Back to Home</button>
+  </div>
+  <script>
+    function fmt(v){return '₹'+v.toFixed(2)}
+    function getOrder(){
+      const params = new URLSearchParams(location.search);
+      const id = params.get('id');
+      const orders = JSON.parse(localStorage.getItem('orders')||'[]');
+      let order = null;
+      if (id){ order = orders.find(o=>o.id===id) || null; }
+      if (!order){ order = JSON.parse(localStorage.getItem('lastOrder')||'null'); }
+      return order;
+    }
+    function setLogo(){
+      const params = new URLSearchParams(location.search);
+      const logoParam = params.get('logo');
+      const url = logoParam || localStorage.getItem('logoUrl') || '';
+      const img = document.getElementById('logo');
+      const brand = document.querySelector('.brand');
+      if (url){
+        img.src = url;
+        img.onload = function(){ img.style.display='block'; brand.style.display='none'; };
+        img.onerror = function(){ img.style.display='none'; brand.style.display='block'; };
+      } else {
+        img.style.display='none'; brand.style.display='block';
+      }
+    }
+    setLogo();
+
+    const order = getOrder();
+    if (!order){
+      document.getElementById('title').textContent = 'No Receipt Available';
+      document.getElementById('meta').textContent = 'Complete a checkout to generate a receipt.';
+    } else {
+      document.getElementById('title').textContent = 'Receipt '+order.id;
+      document.getElementById('meta').textContent = 'Customer: '+order.customer+' | Date: '+new Date(order.createdAt).toLocaleString();
+      const table = document.getElementById('items');
+      order.items.forEach(function(i){
+        const tr = document.createElement('tr');
+        tr.innerHTML = '<td>'+i.name+'</td><td>'+i.qty+'</td><td>'+fmt(i.price*i.qty)+'</td>';
+        table.appendChild(tr);
+      });
+      document.getElementById('total').textContent = 'Total '+fmt(order.total);
+    }
+    document.getElementById('btnPrint').onclick = function(){ window.print(); };
+    document.getElementById('btnHome').onclick = function(){ window.location.href = 'index.html'; };
+  </script>
+</body>
+</html>

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Laundry POS</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">WHITEX LAUNDRY</div>
+    <div class="support">
+      <a class="wa-link" href="https://wa.me/9861836318" target="_blank" rel="noopener" aria-label="WhatsApp chat">
+        <svg class="wa-icon" width="22" height="22" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle cx="12" cy="12" r="10" fill="#25D366"/>
+          <path d="M16.5 15.3c-.3.1-1.7.8-2 .8-.4 0-1.5-.5-2.7-1.6-1-.9-1.8-2-2.1-2.4-.3-.4-.6-1-.3-1.3.1-.1.3-.3.4-.5.1-.1.2-.3.2-.4 0-.1 0-.3-.1-.4-.1-.2-.8-2-1-2.4-.2-.4-.4-.4-.6-.4h-.5c-.1 0-.4.1-.6.3-.2.2-.8.8-.8 2s.8 2.4 1 2.7c.1.2 1.6 2.5 3.8 3.6 2.2 1.2 2.9 1 3.4.9.5-.1 1.7-.7 2-1.4.2-.7.2-1.2.1-1.4-.1-.2-.4-.3-.6-.2z" fill="#fff"/>
+        </svg>
+      </a>
+    </div>
+  </header>
+
+  <!-- notice removed per request -->
+
+  <section class="controls">
+    <input id="searchInput" class="search" type="text" placeholder="PRODUCT NAME" />
+    <input class="barcode" type="text" placeholder="BARCODE" />
+    <div class="actions">
+      <input id="customerInput" class="customer" type="text" placeholder="Select customer by Phone / Name" />
+      <button id="addCustomerBtn" class="btn">Add New</button>
+      <!-- Customer suggestions dropdown -->
+      <div id="customerSuggestions" class="suggestions"></div>
+      
+      <!-- Customer Modal -->
+      <div id="customerModal" class="modal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3>Add Customer</h3>
+            <button id="closeCustomer" class="close">×</button>
+          </div>
+          <div class="modal-body">
+            <label>Name</label>
+            <input id="custName" type="text" placeholder="Customer name" />
+            <label>Phone</label>
+            <input id="custPhone" type="tel" placeholder="Phone number" />
+            <label>Address</label>
+            <textarea id="custAddress" placeholder="Address"></textarea>
+          </div>
+          <div class="modal-actions">
+            <button id="saveCustomer" class="primary">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <nav class="tabs">
+    <button class="tab active" data-tab="dry">Dry Clean</button>
+    <button class="tab" data-tab="laundry">Laundry</button>
+    <button class="tab" data-tab="repairs">Repairs / Alterations</button>
+  </nav>
+
+  <main class="layout">
+    <section class="catalog">
+      <h2>Men</h2>
+      <div id="menGrid" class="grid"></div>
+
+      <h2>Women</h2>
+      <div id="womenGrid" class="grid"></div>
+    </section>
+
+    <aside class="cart">
+      <div class="cart-header">
+        <div class="order-title">NEW ORDER</div>
+        <div class="cart-buttons">
+          <button class="btn small" id="btnNewOrder">New Order</button>
+          <button class="btn small" id="btnGarment">Garment</button>
+          <a class="btn small" id="btnReceipt" href="./receipt.html" target="_blank" rel="noopener">Receipt</a>
+        </div>
+      </div>
+
+      <div class="cart-customer">
+        <div id="orderId">SO-1</div>
+        <div id="customerName">Customer: Walk-in</div>
+      </div>
+
+      <ul id="cartItems" class="cart-items"></ul>
+
+      <div class="cart-summary">
+        <div class="summary-row">
+          <span>Items</span>
+          <span id="itemCount">0</span>
+        </div>
+        <div class="summary-row">
+          <span>Total</span>
+          <span id="grandTotal">₹0.00</span>
+        </div>
+      </div>
+
+      <div class="cart-footer">
+        <button id="resetBtn" class="btn outline">Reset</button>
+        <button id="checkoutBtn" class="btn primary">Checkout</button>
+      </div>
+    </aside>
+  </main>
+
+  <!-- Checkout Modal -->
+  <div id="checkoutModal" class="modal" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title">Checkout</div>
+        <button id="closeCheckout" class="btn small outline">Close</button>
+      </div>
+      <div class="modal-body">
+        <table class="table" id="checkoutTable"></table>
+        <div class="summary-row"><strong>Total</strong><strong id="checkoutTotal">₹0.00</strong></div>
+      </div>
+      <div class="modal-actions">
+        <button id="confirmCheckout" class="btn primary">Confirm & Save</button>
+        <button id="printReceipt" class="btn">Print Receipt</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Return Garment Modal -->
+  <div id="returnModal" class="modal" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title">Return Garment</div>
+        <button id="closeReturn" class="btn small outline">Close</button>
+      </div>
+      <div class="modal-body">
+        <div style="display:flex; gap:8px; margin-bottom:10px;">
+          <input id="returnOrderId" class="input" placeholder="Enter Order ID (e.g., SO-1)" />
+          <button id="loadReturnOrder" class="btn">Load</button>
+        </div>
+        <table class="table" id="returnTable"></table>
+      </div>
+      <div class="modal-actions">
+        <button id="confirmReturn" class="btn primary">Confirm Return</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Customer Modal -->
+  <div id="customerModal" class="modal" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title">Add Customer</div>
+        <button id="closeCustomer" class="btn small outline">Close</button>
+      </div>
+      <div class="modal-body">
+        <div style="display:grid; gap:8px;">
+          <input id="custName" class="input" placeholder="Customer Name" />
+          <input id="custPhone" class="input" placeholder="Phone" />
+          <input id="custAddress" class="input" placeholder="Address" />
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button id="saveCustomer" class="btn primary">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">whitex laundry all rights reserved</footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
